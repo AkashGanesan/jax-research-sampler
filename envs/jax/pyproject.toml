@@ -1,0 +1,31 @@
+[project]
+name = "ai-overview-jax"
+version = "0.1.0"
+description = "Primary JAX/Flax NNX env for all LLM work"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "jax[cuda13]",
+  "flax",
+  "optax",
+  "orbax-checkpoint",
+  "chex",
+  "einops",
+  "numpy",
+  "pandas",
+  "matplotlib",
+  "tqdm",
+  "datasets",
+  "tokenizers",
+  "transformers",  # tokenizer / chat templates only (no torch installed)
+  "safetensors",
+  "huggingface-hub",
+  "tensorboardx",
+  "jupyterlab",
+  "ipykernel",
+]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[tool.uv]
+package = false

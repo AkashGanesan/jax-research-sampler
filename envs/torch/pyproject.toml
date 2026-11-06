@@ -1,0 +1,22 @@
+[project]
+name = "ai-overview-torch"
+version = "0.1.0"
+description = "Secondary env: PyTorch/vLLM parity checks and baselines only"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "vllm",          # pins a compatible torch
+  "transformers",
+  "trl",
+  "peft",
+  "accelerate",
+  "datasets",
+  "pandas",
+  "matplotlib",
+  "ipykernel",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.uv]
+package = false
