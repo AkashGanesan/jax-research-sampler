@@ -12,7 +12,8 @@ import time
 if os.environ.get("_SHARDING_CHILD"):
     import jax
     import jax.numpy as jnp
-    from jax.sharding import NamedSharding, PartitionSpec as P
+    from jax.sharding import NamedSharding
+    from jax.sharding import PartitionSpec as P
 
     devs = jax.devices()
     assert len(devs) == 8, devs

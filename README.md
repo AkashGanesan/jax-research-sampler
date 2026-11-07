@@ -26,3 +26,17 @@ uv run --project envs/torch python scripts/check_torch.py
 - The JAX compilation cache is at `.cache/jax`.
 - Adding packages: `uv add --project envs/jax <pkg>`.
 - Cloud GPU/TPU: see `cloud/README.md`.
+
+## Eval harness (`harness/`, framework-neutral: stdlib + numpy, never jax/torch)
+```bash
+uv run --project envs/jax python -m harness.build_data            # once: freezes data/splits.json
+uv run --project envs/torch python scripts/gen_vllm.py --split dev --n 16 --out runs/<name>
+uv run --project envs/jax python -m harness.score runs/<name>/completions.jsonl
+uv run --project envs/jax --group dev python -m pytest -q tests
+```
+Any generator works (JAX sampler, vLLM, API) as long as it writes `completions.jsonl` rows
+`{id, sample, completion}` plus a `meta.json`. Scoring appends a row to `runs/results.jsonl`.
+
+## Week 0
+- `scripts/week0_jax_smoke.py`: Qwen3 via Tunix NNX: load, generate, LoRA fwd/bwd (selection rule 3.1a)
+- `scripts/week0_overnight.sh`: dev gate (n=16), noise floor (test, 3 seeds), SFT pool, then `runs/week0_report_*.md`

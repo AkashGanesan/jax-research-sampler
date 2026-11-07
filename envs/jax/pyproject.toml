@@ -22,6 +22,7 @@ dependencies = [
   "tensorboardx",
   "jupyterlab",
   "ipykernel",
+  "google-tunix>=0.1.7",
 ]
 
 [dependency-groups]

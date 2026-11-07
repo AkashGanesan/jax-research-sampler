@@ -6,7 +6,7 @@ Never import jax in this process.
 
 import torch
 import transformers
-import vllm  # noqa: F401  (import check only; don't start an engine here)
+import vllm
 
 print(f"torch {torch.__version__} (CUDA {torch.version.cuda}), transformers {transformers.__version__}, vllm {vllm.__version__}")
 assert torch.cuda.is_available(), "CUDA not available to torch"
