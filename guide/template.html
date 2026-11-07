@@ -1,0 +1,255 @@
+<title>JAX Research Sampler Weekbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab-notebook weekbook. Sticky week rail on the left (14 weeks, bar = planned hours),
+   one week open at a time on the right: goals, outcomes, then the self-check questions. */
+:root {
+  --bg: #f4f6f8; --surface: #ffffff; --ink: #141a24; --muted: #5a6474; --line: #dde2e9;
+  --accent: #2443b8; --accent-soft: #e5eafb; --stretch: #a15c00; --stretch-soft: #fbf0df;
+  --done: #1f7a4d; --done-soft: #e1f3e9;
+  --f-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1117; --surface: #161b24; --ink: #e6e9ef; --muted: #98a2b3; --line: #273041;
+  --accent: #8ea6ff; --accent-soft: #1d2645; --stretch: #f0b25a; --stretch-soft: #33270f;
+  --done: #5fd39a; --done-soft: #14301f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1117; --surface: #161b24; --ink: #e6e9ef; --muted: #98a2b3; --line: #273041;
+  --accent: #8ea6ff; --accent-soft: #1d2645; --stretch: #f0b25a; --stretch-soft: #33270f;
+  --done: #5fd39a; --done-soft: #14301f; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: var(--s6) var(--s7) }
+header.top { display: grid; gap: var(--s3); margin-bottom: var(--s6) }
+.eyebrow { font: 500 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+h1 { font: 600 clamp(30px, 4.5vw, 44px)/1.1 var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em }
+.lede { color: var(--muted); max-width: 68ch; margin: 0 }
+.how { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); font-size: 13px; color: var(--muted) }
+.how b { color: var(--ink); font-weight: 600 }
+
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--s6); align-items: start }
+nav.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 2px }
+.rail a { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: var(--s2);
+  padding: 7px 10px; border-radius: 6px; color: inherit; text-decoration: none; font-size: 13.5px }
+.rail a:hover { background: var(--surface) }
+.rail a[aria-current="true"] { background: var(--accent-soft); color: var(--accent) }
+.rail a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.rail .wk { font: 500 12px var(--f-mono); color: var(--muted) }
+.rail a[aria-current="true"] .wk { color: var(--accent) }
+.rail .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.rail .pc { font: 400 11px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.rail .pc.full { color: var(--done) }
+.rail .phase { font: 500 11px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  padding: var(--s4) 10px var(--s2) }
+.rail .phase:first-child { padding-top: 0 }
+
+main { min-width: 0; display: grid; gap: var(--s6) }
+.week-head { display: grid; gap: var(--s3); border-bottom: 1px solid var(--line); padding-bottom: var(--s5) }
+.week-head .meta { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center }
+.chip { font: 500 12px/1 var(--f-mono); padding: 5px 8px; border-radius: 4px; background: var(--surface);
+  border: 1px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums }
+h2 { font: 600 clamp(26px, 3.4vw, 34px)/1.15 var(--f-display); margin: 0; text-wrap: balance }
+.theme { margin: 0; max-width: 70ch; font-size: 16.5px }
+.exit { margin: 0; max-width: 70ch; padding: var(--s3) var(--s4); background: var(--surface); border: 1px solid var(--line);
+  border-left: 3px solid var(--done); border-radius: 4px }
+.exit b { font: 500 12px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--done); margin-right: var(--s2) }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--s5) }
+.block { min-width: 0 }
+h3 { font: 600 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 var(--s3) }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px }
+ul.plain li::marker { color: var(--muted) }
+ul.learned { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px }
+ul.learned li { padding-left: 22px; position: relative }
+ul.learned li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--f-mono) }
+ul.pit li::marker { content: "! "; color: var(--stretch); font-family: var(--f-mono) }
+
+.qbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3);
+  border-bottom: 1px solid var(--line); padding-bottom: var(--s3) }
+.qbar h3 { margin: 0 }
+.filters { display: flex; flex-wrap: wrap; gap: 6px }
+button { font: 500 12.5px/1 var(--f-body); cursor: pointer; border-radius: 5px; padding: 7px 10px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink) }
+button:hover { border-color: var(--muted) }
+button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+button.primary { background: var(--accent); color: var(--surface); border-color: var(--accent) }
+:root[data-theme="dark"] button.primary { color: #0e1117 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.primary { color: #0e1117 } }
+
+ol.qs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3) }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: var(--s4); display: grid; gap: var(--s3) }
+.q.done { border-color: color-mix(in srgb, var(--done) 45%, var(--line)) }
+.q-top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s3); align-items: start }
+.q-num { font: 500 12px/1.9 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; min-width: 2.2em }
+.q-text { margin: 0; font-size: 15.5px; font-weight: 500 }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px }
+.tag { font: 500 11px/1 var(--f-mono); padding: 4px 6px; border-radius: 3px; background: var(--bg); color: var(--muted); letter-spacing: .02em }
+.tag.stretch { background: var(--stretch-soft); color: var(--stretch) }
+.q details { border-top: 1px dashed var(--line); padding-top: var(--s3) }
+.q summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 500; width: fit-content }
+.q details ul { margin: var(--s2) 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px }
+.verify { font-size: 13px; color: var(--muted); margin: var(--s2) 0 0 }
+.verify b { color: var(--ink); font-weight: 600 }
+.q-actions { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center }
+label.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; margin-right: auto }
+label.check input { width: 16px; height: 16px; accent-color: var(--done) }
+.q.done label.check { color: var(--done) }
+code, .mono { font-family: var(--f-mono); font-size: .9em }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-size: 13px }
+.empty { color: var(--muted); font-size: 14px }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: var(--s4); margin-top: var(--s6) }
+
+@media (max-width: 820px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: var(--s5) }
+  nav.rail { position: static; display: flex; overflow-x: auto; gap: 4px; padding-bottom: 4px }
+  .rail .phase { display: none }
+  .rail a { grid-template-columns: auto auto; flex: 0 0 auto }
+  .rail .nm { display: none }
+}
+@media (prefers-reduced-motion: no-preference) { .q { transition: border-color .15s } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Qwen3-1.7B · MBPP · JAX/Flax NNX · 14 weeks · ~460 h</div>
+    <h1>JAX Research Sampler Weekbook</h1>
+    <p class="lede">What each week is for, what you should be able to do afterwards, and the questions that prove it. Answer them out loud or on paper first, then take them to Claude Code in this repo to check your answer.</p>
+    <div class="how">
+      <span><b>Copy quiz prompt</b> gives you a prompt for Claude that asks you the question without revealing the answer</span>
+      <span><b>What a good answer covers</b> is the rubric. Open it after you answer</span>
+      <span><b>Ticks</b> are saved in this browser only</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="Weeks"></nav>
+    <main id="main"></main>
+  </div>
+  <footer id="foot"></footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script id="data" type="application/json">/*DATA*/</script>
+<script>
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const WEEKS = DATA.weeks;
+const KINDS = ["concept", "derivation", "code", "experiment", "debug", "design"];
+const STORE = "weekbook-done-v1";
+let done = {};
+try { done = JSON.parse(localStorage.getItem(STORE) || "{}") } catch (e) { done = {} }
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(done)) } catch (e) {} };
+let filter = { kind: "all", level: "all" };
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// render `code` spans inside plain text
+const fmt = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+const qkey = (w, q) => w.week + "::" + q.q.slice(0, 80);
+const phaseOf = n => n <= 2 ? "Light ramp · 5-7 h/week" : n <= 4 ? "Build the stack" : n <= 9 ? "RL and agents" : "Interp, systems, capstone";
+
+function toast(msg) {
+  const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800);
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast("Copied. Paste it into Claude Code") }
+  catch (e) {
+    const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy") } catch (_) {}
+    ta.remove(); toast(ok ? "Copied. Paste it into Claude Code" : "Copy was blocked. Select the question text instead");
+  }
+}
+const qPrompt = (w, q) =>
+`Quiz me on week ${w.week} (${w.title}) of REVIEW.md. Ask me this question and wait for my answer. Do not give hints or the answer first:
+
+"${q.q}"
+
+After I answer, grade it against what a strong answer must contain, point out anything wrong or missing, then ask one follow-up question that probes deeper. Verify with: ${q.verify}`;
+const weekPrompt = w =>
+`Quiz me on week ${w.week} (${w.title}) of REVIEW.md. Ask these one at a time, wait for my answer, grade each one strictly with follow-ups, and summarize my weak spots at the end. Do not reveal answers before I try:
+
+${w.questions.map((q, i) => `${i + 1}. ${q.q}`).join("\n")}`;
+
+function rail(cur) {
+  let html = "", last = "";
+  for (const w of WEEKS) {
+    const ph = phaseOf(w.week);
+    if (ph !== last) { html += `<div class="phase">${ph}</div>`; last = ph }
+    const n = w.questions.length, d = w.questions.filter(q => done[qkey(w, q)]).length;
+    html += `<a href="#week-${w.week}" aria-current="${w.week === cur}"><span class="wk">W${String(w.week).padStart(2, "0")}</span>
+      <span class="nm">${esc(w.title)}</span><span class="pc ${d === n && n ? "full" : ""}">${d}/${n}</span></a>`;
+  }
+  document.getElementById("rail").innerHTML = html;
+}
+
+function render() {
+  const m = /^#week-(\d+)$/.exec(location.hash);
+  const cur = m && WEEKS.some(w => w.week === +m[1]) ? +m[1] : WEEKS[0].week;
+  const w = WEEKS.find(x => x.week === cur);
+  rail(cur);
+  const list = w.questions.map((q, i) => ({ q, i })).filter(({ q }) =>
+    (filter.kind === "all" || q.kind === filter.kind) && (filter.level === "all" || q.level === filter.level));
+  const kindsHere = KINDS.filter(k => w.questions.some(q => q.kind === k));
+  const btn = (grp, val, label) => `<button data-f="${grp}" data-v="${val}" aria-pressed="${filter[grp] === val}">${label}</button>`;
+  const nd = w.questions.filter(q => done[qkey(w, q)]).length;
+
+  document.getElementById("main").innerHTML = `
+    <section class="week-head">
+      <div class="meta"><span class="chip">Week ${w.week}</span><span class="chip">${esc(w.hours)} h</span>
+        <span class="chip">${w.questions.length} questions</span><span class="chip">${nd} ticked</span>
+        <a class="chip" href="https://claude.ai/artifact/J62eW68tVa38pLh2Qmf63J#ch-${w.week}" target="_blank" rel="noopener" style="text-decoration:none">Read chapter ${w.week} ↗</a></div>
+      <h2>${esc(w.title)}</h2>
+      <p class="theme">${fmt(w.theme)}</p>
+      <p class="exit"><b>Done when</b>${fmt(w.exit_check)}</p>
+    </section>
+    <section class="cols">
+      <div class="block"><h3>Goals</h3><ul class="plain">${w.goals.map(g => `<li>${fmt(g)}</li>`).join("")}</ul></div>
+      <div class="block"><h3>Deliverables</h3><ul class="plain">${w.deliverables.map(g => `<li>${fmt(g)}</li>`).join("")}</ul></div>
+    </section>
+    <section class="cols">
+      <div class="block"><h3>What you should have learned</h3><ul class="learned">${w.learned.map(g => `<li>${fmt(g)}</li>`).join("")}</ul></div>
+      <div class="block"><h3>Pitfalls</h3><ul class="plain pit">${w.pitfalls.map(g => `<li>${fmt(g)}</li>`).join("")}</ul></div>
+    </section>
+    <section style="display:grid;gap:var(--s4)">
+      <div class="qbar"><h3>Questions you should be able to answer</h3>
+        <button class="primary" id="copyweek">Copy quiz prompt for the whole week</button></div>
+      <div class="filters">${btn("level", "all", "All")}${btn("level", "core", "Core")}${btn("level", "stretch", "Stretch")}
+        <span style="width:8px"></span>${btn("kind", "all", "Any kind")}${kindsHere.map(k => btn("kind", k, k[0].toUpperCase() + k.slice(1))).join("")}</div>
+      ${list.length ? "" : `<p class="empty">No questions match this filter.</p>`}
+      <ol class="qs">${list.map(({ q, i }) => {
+        const k = qkey(w, q), d = !!done[k], id = `c-${w.week}-${i}`;
+        return `<li class="q ${d ? "done" : ""}">
+          <div class="q-top"><span class="q-num">${w.week}.${i + 1}</span>
+            <div><p class="q-text">${fmt(q.q)}</p>
+              <div class="tags"><span class="tag">${esc(q.kind)}</span>${q.level === "stretch" ? `<span class="tag stretch">stretch</span>` : ""}</div></div></div>
+          <details><summary>What a good answer covers</summary>
+            <ul>${q.good_answer.map(a => `<li>${fmt(a)}</li>`).join("")}</ul>
+            <p class="verify"><b>Verify:</b> ${fmt(q.verify)}</p></details>
+          <div class="q-actions"><label class="check" for="${id}"><input type="checkbox" id="${id}" data-k="${esc(k)}" ${d ? "checked" : ""}>I can answer this</label>
+            <button data-copy="${i}">Copy quiz prompt</button></div></li>`;
+      }).join("")}</ol>
+    </section>`;
+
+  document.getElementById("copyweek").onclick = () => copy(weekPrompt(w));
+  document.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copy(qPrompt(w, w.questions[+b.dataset.copy])));
+  document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter[b.dataset.f] = b.dataset.v; render() });
+  document.querySelectorAll("input[data-k]").forEach(c => c.onchange = () => {
+    if (c.checked) done[c.dataset.k] = 1; else delete done[c.dataset.k];
+    save(); c.closest(".q").classList.toggle("done", c.checked); rail(cur);
+  });
+  const total = WEEKS.reduce((s, x) => s + x.questions.length, 0);
+  const ticked = WEEKS.reduce((s, x) => s + x.questions.filter(q => done[qkey(x, q)]).length, 0);
+  document.getElementById("foot").textContent =
+    `${ticked} of ${total} questions ticked across ${WEEKS.length} weeks. Source: REVIEW.md in the ai-overview repo.`;
+}
+window.addEventListener("hashchange", () => { filter = { kind: "all", level: "all" }; render(); window.scrollTo(0, 0) });
+render();
+</script>
